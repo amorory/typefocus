@@ -3,88 +3,30 @@
 #define UNICODE
 #endif
 
-#include <magnification.h>
-#include <windows.h>
-
 #include <cstdlib>
 #include <iostream>
 
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+#include "MainWindow.hpp"
 
-INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-                    PWSTR pCmdLine, int nCmdShow) {
-  // Register the window class.
-  const wchar_t ZOOM_AREA[] = L"Zoom Area Class";
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine,
+                    int nCmdShow) {
+  MainWindow win;
 
-  WNDCLASS wc = {};
-
-  wc.lpfnWndProc = WindowProc;
-  wc.hInstance = hInstance;
-  wc.lpszClassName = ZOOM_AREA;
-
-  RegisterClass(&wc);
-
-  // Create the window.
-
-  HWND hwnd =
-      CreateWindowEx(0,                    // Optional window styles.
-                     ZOOM_AREA,            // Window class
-                     L"Type Focus",        // Window text
-                     WS_OVERLAPPEDWINDOW,  // Window style
-
-                     // Size and position
-                     CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-
-                     NULL,       // Parent window
-                     NULL,       // Menu
-                     hInstance,  // Instance handle
-                     NULL        // Additional application data
-      );
-
-  if (hwnd == NULL) {
+  if (!win.Create(L"Learn to Program Windows", WS_OVERLAPPEDWINDOW)) {
     return 0;
   }
 
-  ShowWindow(hwnd, nCmdShow);
+  ShowWindow(win.Window(), nCmdShow);
 
   // Run the message loop.
 
   MSG msg = {};
-  while (GetMessage(&msg, NULL, 0, 0) > 0) {
+  while (GetMessage(&msg, NULL, 0, 0)) {
     TranslateMessage(&msg);
     DispatchMessage(&msg);
   }
 
   return 0;
-}
-
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
-                            LPARAM lParam) {
-  switch (uMsg) {
-    case WM_CLOSE:
-      if (MessageBox(hwnd, L"Really quit?", L"My application", MB_OKCANCEL) ==
-          IDOK) {
-        DestroyWindow(hwnd);
-      }
-      // Else: User canceled. Do nothing.
-      return 0;
-    case WM_DESTROY:
-      PostQuitMessage(0);
-      return 0;
-
-    case WM_PAINT: {
-      PAINTSTRUCT ps;
-      HDC hdc = BeginPaint(hwnd, &ps);
-
-      // All painting occurs here, between BeginPaint and EndPaint.
-
-      FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW + 1));
-
-      EndPaint(hwnd, &ps);
-    }
-      return 0;
-  }
-  return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
 // int main() {
