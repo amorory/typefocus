@@ -18,6 +18,7 @@ const float MAGFACTOR = 2.0f;
 HWND hwndHost;
 HWND hwndMag;
 
+bool SetMagnificationFactor();
 void CALLBACK UpdateMagWindow(HWND hwnd, UINT uMsg, UINT_PTR idEvent,
                               DWORD dwTime);
 
@@ -50,6 +51,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine,
     return FALSE;
   }
 
+  SetMagnificationFactor();
+
   ShowWindow(winMain.Window(), nCmdShow);
   UpdateWindow(winMain.Window());
 
@@ -68,38 +71,54 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine,
   return (int)msg.wParam;
 }
 
+bool SetMagnificationFactor() {
+  MAGTRANSFORM matrix;
+  memset(&matrix, 0, sizeof(matrix));
+  matrix.v[0][0] = MAGFACTOR;
+  matrix.v[1][1] = MAGFACTOR;
+  matrix.v[2][2] = 1.0f;
+
+  return MagSetWindowTransform(hwndMag, &matrix);
+}
+
 void CALLBACK UpdateMagWindow(HWND hwnd, UINT uMsg, UINT_PTR idEvent,
                               DWORD dwTime) {
-  // Get the mouse coordinates.
-  POINT mousePoint;
-  GetCursorPos(&mousePoint);
+  DWORD currentThread = GetCurrentThreadId();
+  HWND active = GetForegroundWindow();
+  DWORD activeThread = GetWindowThreadProcessId(active, nullptr);
+  if (currentThread != activeThread) {
+    AttachThreadInput(currentThread, activeThread, true);
+  }
 
-  // Calculate a source rectangle that is centered at the mouse coordinates.
-  // Size the rectangle so that it fits into the magnifier window (the lens).
-  RECT sourceRect;
+  POINT coordinates;
+  if (GetCaretPos(&coordinates)) {
+    ClientToScreen(active, &coordinates);
+  }
+
+  RECT area;
   int borderWidth = GetSystemMetrics(SM_CXFIXEDFRAME);
   int captionHeight = GetSystemMetrics(SM_CYCAPTION);
-  sourceRect.left = (mousePoint.x - (int)((LENS_WIDTH / 2) / MAGFACTOR)) +
-                    (int)(borderWidth / MAGFACTOR);
-  sourceRect.top = (mousePoint.y - (int)((LENS_HEIGHT / 2) / MAGFACTOR)) +
-                   (int)(captionHeight / MAGFACTOR) +
-                   (int)(borderWidth / MAGFACTOR);
-  sourceRect.right = LENS_WIDTH;
-  sourceRect.bottom = LENS_HEIGHT;
+  area.left = (coordinates.x - (int)((LENS_WIDTH / 2) / MAGFACTOR)) +
+              (int)(borderWidth / MAGFACTOR);
+  area.top = (coordinates.y - (int)((LENS_HEIGHT / 2) / MAGFACTOR)) +
+             (int)(captionHeight / MAGFACTOR) + (int)(borderWidth / MAGFACTOR);
+  area.right = LENS_WIDTH;
+  area.bottom = LENS_HEIGHT;
 
   // Pass the source rectangle to the magnifier control.
-  MagSetWindowSource(hwndMag, sourceRect);
+  MagSetWindowSource(hwndMag, area);
 
   // Move the host window so that the origin of the client area lines up
   // with the origin of the magnified source rectangle.
-  MoveWindow(hwndHost, (mousePoint.x - LENS_WIDTH / 2),
-             (mousePoint.y - LENS_HEIGHT / 2), LENS_WIDTH, LENS_HEIGHT, FALSE);
+  MoveWindow(hwndHost, (coordinates.x - LENS_WIDTH / 2),
+             (coordinates.y - LENS_HEIGHT / 2), LENS_WIDTH, LENS_HEIGHT, FALSE);
 
   // Force the magnifier control to redraw itself.
   InvalidateRect(hwndMag, NULL, TRUE);
 
   return;
 }
+
 // int main() {
 // MagInitialize();
 // while (true) {
