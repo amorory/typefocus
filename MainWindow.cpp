@@ -1,6 +1,5 @@
 #include "MainWindow.hpp"
 
-
 LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
   switch (uMsg) {
     case WM_DESTROY:

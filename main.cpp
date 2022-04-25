@@ -11,8 +11,8 @@
 
 #include "MainWindow.hpp"
 
-const int LENS_WIDTH = 25;
-const int LENS_HEIGHT = 25;
+const int LENS_WIDTH = 300;
+const int LENS_HEIGHT = 200;
 const float MAGFACTOR = 2.0f;
 
 HWND hwndHost;
@@ -83,35 +83,41 @@ bool SetMagnificationFactor() {
 
 void CALLBACK UpdateMagWindow(HWND hwnd, UINT uMsg, UINT_PTR idEvent,
                               DWORD dwTime) {
+  // Attach to thread of current window
   DWORD currentThread = GetCurrentThreadId();
-  HWND active = GetForegroundWindow();
-  DWORD activeThread = GetWindowThreadProcessId(active, nullptr);
+  HWND hwndActive = GetForegroundWindow();
+  DWORD activeThread = GetWindowThreadProcessId(hwndActive, nullptr);
   if (currentThread != activeThread) {
     AttachThreadInput(currentThread, activeThread, true);
   }
 
-  POINT coordinates;
-  if (GetCaretPos(&coordinates)) {
-    ClientToScreen(active, &coordinates);
+  // Obtain caret location in screen coordinates
+  POINT caretPos;
+  if (GetCaretPos(&caretPos)) {
+    ClientToScreen(hwndActive, &caretPos);
   }
 
-  RECT area;
+  RECT sourceRect;
   int borderWidth = GetSystemMetrics(SM_CXFIXEDFRAME);
   int captionHeight = GetSystemMetrics(SM_CYCAPTION);
-  area.left = (coordinates.x - (int)((LENS_WIDTH / 2) / MAGFACTOR)) +
-              (int)(borderWidth / MAGFACTOR);
-  area.top = (coordinates.y - (int)((LENS_HEIGHT / 2) / MAGFACTOR)) +
-             (int)(captionHeight / MAGFACTOR) + (int)(borderWidth / MAGFACTOR);
-  area.right = LENS_WIDTH;
-  area.bottom = LENS_HEIGHT;
+  sourceRect.left = (caretPos.x - (int)((LENS_WIDTH / 2) / MAGFACTOR)) +
+                    (int)(borderWidth / MAGFACTOR);
+  sourceRect.top = (caretPos.y - (int)((LENS_HEIGHT / 2) / MAGFACTOR)) +
+                   (int)(captionHeight / MAGFACTOR) +
+                   (int)(borderWidth / MAGFACTOR);
+  sourceRect.right = LENS_WIDTH;
+  sourceRect.bottom = LENS_HEIGHT;
 
   // Pass the source rectangle to the magnifier control.
-  MagSetWindowSource(hwndMag, area);
+  MagSetWindowSource(hwndMag, sourceRect);
 
   // Move the host window so that the origin of the client area lines up
   // with the origin of the magnified source rectangle.
-  MoveWindow(hwndHost, (coordinates.x - LENS_WIDTH / 2),
-             (coordinates.y - LENS_HEIGHT / 2), LENS_WIDTH, LENS_HEIGHT, FALSE);
+  MoveWindow(hwndHost, (caretPos.x - LENS_WIDTH / 2),
+             (caretPos.y - LENS_HEIGHT / 2), LENS_WIDTH, LENS_HEIGHT, FALSE);
+  // SetWindowPos(hwndHost, HWND_TOPMOST, caretPos.x - (LENS_WIDTH / 2),
+  //              caretPos.y - (LENS_HEIGHT / 2), LENS_WIDTH, LENS_HEIGHT,
+  //              SWP_NOACTIVATE);
 
   // Force the magnifier control to redraw itself.
   InvalidateRect(hwndMag, NULL, TRUE);
