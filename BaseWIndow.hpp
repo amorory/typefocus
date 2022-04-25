@@ -1,3 +1,4 @@
+#pragma once
 #include <windows.h>
 
 template <class DERIVED_TYPE>
@@ -29,13 +30,16 @@ class BaseWindow {
               int x = CW_USEDEFAULT, int y = CW_USEDEFAULT,
               int nWidth = CW_USEDEFAULT, int nHeight = CW_USEDEFAULT,
               HWND hWndParent = 0, HMENU hMenu = 0) {
-    WNDCLASS wc = {0};
+    WNDCLASSEX wcex = {};
+    wcex.cbSize = sizeof(WNDCLASSEX);
+    wcex.style = 0;
+    wcex.lpfnWndProc = DERIVED_TYPE::WindowProc;
+    wcex.hInstance = GetModuleHandle(NULL);
+    wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wcex.hbrBackground = (HBRUSH)(1 + COLOR_BTNFACE);
+    wcex.lpszClassName = ClassName();
 
-    wc.lpfnWndProc = DERIVED_TYPE::WindowProc;
-    wc.hInstance = GetModuleHandle(NULL);
-    wc.lpszClassName = ClassName();
-
-    RegisterClass(&wc);
+    RegisterClassEx(&wcex);
 
     m_hwnd = CreateWindowEx(dwExStyle, ClassName(), lpWindowName, dwStyle, x, y,
                             nWidth, nHeight, hWndParent, hMenu,

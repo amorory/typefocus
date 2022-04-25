@@ -1,6 +1,5 @@
 #include "MainWindow.hpp"
 
-#include <magnification.h>
 
 LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
   switch (uMsg) {
