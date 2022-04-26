@@ -91,9 +91,6 @@ void CALLBACK UpdateMagWindow(HWND hwnd, UINT uMsg, UINT_PTR idEvent,
   // Attach to thread of current window
   DWORD currentThread = GetCurrentThreadId();
   HWND hwndActive = GetForegroundWindow();
-  if (hwndActive == hwndMag || hwndActive == hwndHost) {
-    hwndActive = GetNextWindow(hwndActive, GW_HWNDNEXT);
-  }
   DWORD activeThread = GetWindowThreadProcessId(hwndActive, nullptr);
   if (currentThread != activeThread) {
     AttachThreadInput(currentThread, activeThread, true);
@@ -108,8 +105,7 @@ void CALLBACK UpdateMagWindow(HWND hwnd, UINT uMsg, UINT_PTR idEvent,
   // Offset by verticle area
   caretPos.y += OFFSET;
 
-  // Calculate a source rectangle that is centered at the mouse coordinates.
-  // Size the rectangle so that it fits into the magnifier window (the lens).
+  // Calculate the source rectangle to be magnified
   RECT sourceRect;
   sourceRect.left = (caretPos.x - (int)((LENS_WIDTH / 2) / MAGFACTOR));
   sourceRect.top = (caretPos.y - (int)((LENS_HEIGHT / 2) / MAGFACTOR));
@@ -119,9 +115,7 @@ void CALLBACK UpdateMagWindow(HWND hwnd, UINT uMsg, UINT_PTR idEvent,
   // Pass the source rectangle to the magnifier control.
   MagSetWindowSource(hwndMag, sourceRect);
 
-  // Move the host window so that the origin of the client area lines up
-  // with the origin of the magnified source rectangle.
-
+  // Move the host window to be centered with the caret
   SetWindowPos(hwndHost, HWND_TOPMOST, caretPos.x - (LENS_WIDTH / 2),
                caretPos.y - (LENS_HEIGHT / 2), LENS_WIDTH, LENS_HEIGHT,
                SWP_NOACTIVATE);
