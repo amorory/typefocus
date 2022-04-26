@@ -41,7 +41,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine,
   // Adjust for dpi
 
   // Make the window opaque.
-  SetLayeredWindowAttributes(hwndHost, 0, 255, LWA_ALPHA);
+  SetLayeredWindowAttributes(hwndHost, 0, 16, LWA_ALPHA);
 
   // Create a magnifier control that fills the client area.
   hwndMag =
@@ -102,9 +102,10 @@ void CALLBACK UpdateMagWindow(HWND hwnd, UINT uMsg, UINT_PTR idEvent,
   }
 
   // Offset by verticle area
-  caretPos.y += (GetSystemMetrics(SM_CYFRAME) + GetSystemMetrics(SM_CYCAPTION) +
-                 GetSystemMetrics(SM_CYMENU) + GetSystemMetrics(SM_CYEDGE) +
-                 GetSystemMetrics(SM_CXFIXEDFRAME) + 50);
+  caretPos.y +=
+      (GetSystemMetrics(SM_CYFRAME) + GetSystemMetrics(SM_CYCAPTION) +
+       GetSystemMetrics(SM_CYMENU) + GetSystemMetrics(SM_CYEDGE) +
+       GetSystemMetrics(SM_CXFIXEDFRAME) + GetSystemMetrics(SM_CYCURSOR));
 
   // Calculate a source rectangle that is centered at the mouse coordinates.
   // Size the rectangle so that it fits into the magnifier window (the lens).
