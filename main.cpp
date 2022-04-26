@@ -11,7 +11,7 @@
 
 #include "MainWindow.hpp"
 
-const int LENS_WIDTH = 200;
+const int LENS_WIDTH = 300;
 const int LENS_HEIGHT = 100;
 const float MAGFACTOR = 2.0f;
 const int OFFSET =
@@ -62,7 +62,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine,
   UpdateWindow(winMain.Window());
 
   // Create a timer to update the control.
-  UINT_PTR timerId = SetTimer(winMain.Window(), 0, 320, UpdateMagWindow);
+  UINT_PTR timerId = SetTimer(winMain.Window(), 0, 16, UpdateMagWindow);
 
   // Main message loop
   MSG msg = {};
@@ -131,29 +131,3 @@ void CALLBACK UpdateMagWindow(HWND hwnd, UINT uMsg, UINT_PTR idEvent,
 
   return;
 }
-
-// int main() {
-// MagInitialize();
-// while (true) {
-//   DWORD currentThread = GetCurrentThreadId();
-//   HWND active = GetForegroundWindow();
-//   DWORD activeThread = GetWindowThreadProcessId(active, nullptr);
-//   if (currentThread != activeThread) {
-//     AttachThreadInput(currentThread, activeThread, true);
-//   }
-
-//   POINT coordinates;
-//   if (GetCaretPos(&coordinates)) {
-//     ClientToScreen(active, &coordinates);
-//     std::cout << coordinates.x << ", " << coordinates.y << std::endl;
-//     Sleep(1000);
-//   }
-
-//   RECT area{coordinates.x - 25, coordinates.y - 10, coordinates.x + 25,
-//             coordinates.y + 10};
-//   // MagSetWindowSource(active, area);
-//   // float mat[3][3] ={{2.0, 0.0, 0.0}, {0.0, 2.0, 0.0}, {0.0,
-//   0.0, 1.0}};
-//   // MagSetWindowTransform(active, &MAGTRANSFORM(mat));
-// }
-// }
