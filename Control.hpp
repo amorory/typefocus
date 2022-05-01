@@ -19,10 +19,11 @@ class Control {
   ~Control();
   HWND GetHwnd() const { return hwnd_; }
   void SetZoom(float zoom_factor_);
-  void Update(long x, long y);
-  static void CALLBACK Update(HWND hwnd, UINT uMsg, UINT_PTR idEvent,
-                              DWORD dwTime);
-  static void CALLBACK CaretHook(HWINEVENTHOOK hEvent, DWORD event,
-                                 HWND hwndMsg, LONG idObject, LONG idChild,
-                                 DWORD idThread, DWORD dwmsEventTime);
+  void Update();
+
+  static void CALLBACK TimerProcess(HWND hwnd, UINT uMsg, UINT_PTR idEvent,
+                                    DWORD dwTime);
+  static void CALLBACK HookProcess(HWINEVENTHOOK hEvent, DWORD event,
+                                   HWND hwndMsg, LONG idObject, LONG idChild,
+                                   DWORD idThread, DWORD dwmsEventTime);
 };
