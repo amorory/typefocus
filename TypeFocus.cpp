@@ -13,17 +13,6 @@
 
 struct StateInfo {};
 
-const int LENS_WIDTH = 300;
-const int LENS_HEIGHT = 100;
-const float MAGFACTOR = 2.0f;
-const int OFFSET =
-    GetSystemMetrics(SM_CYFRAME) + GetSystemMetrics(SM_CYCAPTION) +
-    GetSystemMetrics(SM_CYMENU) + GetSystemMetrics(SM_CYEDGE) +
-    GetSystemMetrics(SM_CXFIXEDFRAME) + GetSystemMetrics(SM_CYCURSOR);
-
-HWND hwndHost;
-HWND hwndMag;
-
 void CALLBACK Update(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine,
@@ -39,18 +28,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine,
 
   // Create a magnifier control that fills the client area.
   Control control(host.GetHwnd());
-  control.SetZoom(2.0f);
 
   ShowWindow(host.GetHwnd(), nCmdShow);
   UpdateWindow(host.GetHwnd());
 
   // Create a timer to update the control.
   // UINT_PTR timerId = SetTimer(host.GetHwnd(), 0, 16, Update);
-
-  hwndHost = host.GetHwnd();
-  hwndMag = control.GetHwnd();
-
-  
 
   // Main message loop
   MSG msg = {};
