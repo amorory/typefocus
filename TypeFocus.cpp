@@ -22,7 +22,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine,
   StateInfo settings;
 
   MagInitialize();
-  CoInitialize(NULL);
+  CoInitialize(nullptr);
 
   // Create the host window
   Program program(settings);
@@ -30,8 +30,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine,
   // Create a magnifier control that fills the client area.
   program.CreateControl();
 
-  ShowWindow(program.HwndLens(), nCmdShow);
-  UpdateWindow(program.HwndHost());
+  ShowWindow(program.GetHwnd(), nCmdShow);
+  UpdateWindow(program.GetHwnd());
+  RegisterHotKey(program.GetHwnd(), 0, 0x4000 | MOD_ALT | MOD_SHIFT, 0x4D);
+  RegisterHotKey(program.GetHwnd(), 1, 0x4000 | MOD_ALT | MOD_SHIFT, 0x4C);
+  RegisterHotKey(program.GetHwnd(), 2, 0x4000 | MOD_ALT | MOD_SHIFT, 0x4B);
+  RegisterHotKey(program.GetHwnd(), 3, 0x4000 | MOD_ALT | MOD_SHIFT, 0x50);
+  RegisterHotKey(program.GetHwnd(), 4, 0x4000 | MOD_ALT | MOD_SHIFT, 0x4E);
 
   // Create a timer to update the control.
   // UINT_PTR timerId = SetTimer(host.GetHwnd(), 0, 16, Update);

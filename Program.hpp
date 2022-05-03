@@ -5,7 +5,13 @@
 #include <oleacc.h>
 #include <windows.h>
 
+#include <algorithm>
+#include <atomic>
+#include <chrono>
 #include <functional>
+#include <future>
+#include <mutex>
+#include <thread>
 
 struct StateInfo {
   int lens_width = 300;
@@ -15,42 +21,47 @@ struct StateInfo {
 };
 
 class Program {
-  static Program* host_;
-
   HWND hwnd_host_;
   HWND hwnd_start_;
   HWND hwnd_lens_;
   HWINEVENTHOOK hook_;
-  UINT_PTR timer_;
+
+  std::mutex location_mutex_;
+  std::mutex drawing_mutex_;
+  std::future<void> zoom_async_;
+  std::thread timer_thread_;
 
   POINT caret_position_;
   int lens_width_;
   int lens_height_;
-  float current_zoom_;
-  bool magnify_;
+  double current_zoom_;
+
+  std::atomic<bool> running_;
+  bool visible_caret_;
   bool invert_colors_;
+  bool hidden_;
+
+  void SetCaretPosition(long x, long y);
+  void SetZoom(double zoom_factor_);
+  void ToggleInverted();
+  void ToggleVisible(bool visible);
+  void ToggleVisible();
 
   LRESULT CALLBACK WindowProcedure(UINT msg, WPARAM wParam, LPARAM lParam);
-  void TimerProcedure();
-  void HookProcedure(HWND hwnd, DWORD event, LONG object, LONG child,
-                     DWORD thread);
-
-  static std::function<void(HWND, DWORD, LONG, LONG, DWORD)> HookBinder;
+  void TimerProcedure(DWORD main_thread_id);
+  void HookProcedure(HWND hwnd, DWORD event, LONG object, LONG child);
+  static std::function<void(HWND, DWORD, LONG, LONG)> HookBinder;
 
  public:
   Program(StateInfo settings);
   ~Program();
   void CreateControl();
 
-  void SetZoom(float zoom_factor_);
-
-  HWND HwndHost() { return hwnd_host_; };
-  HWND HwndLens() { return hwnd_lens_; };
+  HWND GetHwnd() const { return hwnd_host_; };
 
   static LRESULT CALLBACK WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam,
                                          LPARAM lParam);
-  static void CALLBACK TimerCallback(HWND hwnd, UINT uMsg, UINT_PTR idEvent,
-                                     DWORD dwTime);
+  static void CALLBACK TimerCallback(HWND hwnd);
   static void CALLBACK HookCallback(HWINEVENTHOOK hEvent, DWORD event,
                                     HWND hwndMsg, LONG idObject, LONG idChild,
                                     DWORD idThread, DWORD dwmsEventTime);
