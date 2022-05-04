@@ -13,13 +13,6 @@
 #include <mutex>
 #include <thread>
 
-struct StateInfo {
-  int lens_width = 300;
-  int lens_height = 100;
-  float magnification_factor = 2.0f;
-  bool invert_colors = false;
-};
-
 class Program {
   HWND hwnd_host_;
   HWND hwnd_start_;
@@ -42,20 +35,30 @@ class Program {
   bool hidden_;
   bool disabled_;
 
+  // Sets caret_position_ to (x, y)
   void SetCaretPosition(long x, long y);
-  void SetZoom(double zoom_factor_);
+  // Sets current_zoom_ and updates magnification matrix
+  void SetZoom(double zoom_factor);
+  // Sets or removes MS_INVERTCOLORS for the magnification control
   void ToggleInverted();
+  // Calls ToggleInverted() if hidden_ does not match visible
   void ToggleVisible(bool visible);
+  // Toggles hidden_ and window transparency
   void ToggleVisible();
 
+  // Handles window messages
   LRESULT CALLBACK WindowProcedure(UINT msg, WPARAM wParam, LPARAM lParam);
+  // Updates magnification source every 16ms ~ 60hz
   void TimerProcedure(DWORD main_thread_id);
+  // Detects caret creation, deletion, and movement
   void HookProcedure(HWND hwnd, DWORD event, LONG object, LONG child);
+  // Allows HookProcedure to be called from a static context
   static std::function<void(HWND, DWORD, LONG, LONG)> HookBinder;
 
  public:
-  Program(StateInfo settings);
+  Program();
   ~Program();
+  // Creates the magnification control window
   void CreateControl();
 
   HWND GetHwnd() const { return hwnd_host_; };

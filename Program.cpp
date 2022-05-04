@@ -4,7 +4,7 @@
 
 std::function<void(HWND, DWORD, LONG, LONG)> Program::HookBinder;
 
-Program::Program(StateInfo settings)
+Program::Program()
     : disabled_(false), hidden_(true), running_(true), current_zoom_(1.5) {
   HookBinder = std::bind(&Program::HookProcedure, this, std::placeholders::_1,
                          std::placeholders::_2, std::placeholders::_3,
@@ -127,7 +127,7 @@ LRESULT Program::WindowProcedure(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
 LRESULT Program::WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam,
                                 LPARAM lParam) {
-  Program* program = (Program*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+  Program *program = (Program *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
   if (program) {
     return program->WindowProcedure(uMsg, wParam, lParam);
   }
@@ -165,7 +165,7 @@ void Program::TimerProcedure(DWORD main_thread_id) {
 }
 
 void Program::TimerCallback(HWND hwnd) {
-  Program* program = (Program*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+  Program *program = (Program *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
   DWORD thread_id = GetCurrentThreadId();
   std::thread(&Program::TimerProcedure, program, thread_id).detach();
 }
@@ -180,7 +180,7 @@ void Program::HookProcedure(HWND hwnd, DWORD event, LONG object, LONG child) {
       ToggleVisible(false);
       visible_caret_ = false;
     } else if (event == EVENT_OBJECT_LOCATIONCHANGE) {  // New caret position
-      IAccessible* accessible = nullptr;
+      IAccessible *accessible = nullptr;
       VARIANT variant;
 
       // Retrieve caret location in screen coordinates

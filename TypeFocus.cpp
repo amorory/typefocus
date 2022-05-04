@@ -13,19 +13,11 @@ void CALLBACK Update(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine,
                     int nCmdShow) {
-  // HKEY hkey;
-  // RegCreateKeyEx(HKEY_CURRENT_USER, L"SOFTWARE\\TypeFocus", 0,
-  //                (LPWSTR) typeid(StateInfo).name(), REG_OPTION_NON_VOLATILE,
-  //                KEY_ALL_ACCESS | KEY_READ, NULL, &hkey, NULL);
-  // LPBYTE registry_data;
-  // RegQueryValueEx(hkey, NULL, NULL, NULL, registry_data, NULL);
-  StateInfo settings;
-
   MagInitialize();
-  CoInitialize(nullptr);
+  CoInitialize(NULL);
 
   // Create the host window
-  Program program(settings);
+  Program program;
 
   // Create a magnifier control that fills the client area.
   program.CreateControl();
@@ -37,9 +29,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine,
   RegisterHotKey(program.GetHwnd(), 2, 0x4000 | MOD_ALT | MOD_SHIFT, 0x4B);
   RegisterHotKey(program.GetHwnd(), 3, 0x4000 | MOD_ALT | MOD_SHIFT, 0x50);
   RegisterHotKey(program.GetHwnd(), 4, 0x4000 | MOD_ALT | MOD_SHIFT, 0x4E);
-
-  // Create a timer to update the control.
-  // UINT_PTR timerId = SetTimer(host.GetHwnd(), 0, 16, Update);
 
   // Main message loop
   MSG msg = {};
