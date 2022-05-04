@@ -1,4 +1,4 @@
-# typefocus
+# TypeFocus
 ## A tool to bring more equity to typing
 
 ### Hotkeys
