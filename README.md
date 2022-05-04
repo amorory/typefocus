@@ -1,7 +1,7 @@
 # typefocus
-##A tool to bring more equity to typing
+## A tool to bring more equity to typing
 
-###Hotkeys
+### Hotkeys
 - Shift + Alt + M
 - - Hide window
 - Shift + Alt + N
