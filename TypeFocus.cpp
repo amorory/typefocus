@@ -1,11 +1,4 @@
 #define _WIN32_WINNT 0x0500
-#include <magnification.h>
-#include <objbase.h>
-#include <winreg.h>
-
-#include <cstdlib>
-#include <iostream>
-#include <thread>
 
 #include "Program.hpp"
 
@@ -14,7 +7,7 @@ void CALLBACK Update(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine,
                     int nCmdShow) {
   MagInitialize();
-  CoInitialize(NULL);
+  CoInitializeEx(NULL, COINIT_MULTITHREADED);
 
   // Create the host window
   Program program;
@@ -22,6 +15,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine,
   // Create a magnifier control that fills the client area.
   program.CreateControl();
 
+  
   ShowWindow(program.GetHwnd(), nCmdShow);
   UpdateWindow(program.GetHwnd());
   RegisterHotKey(program.GetHwnd(), 0, 0x4000 | MOD_ALT | MOD_SHIFT, 0x4D);

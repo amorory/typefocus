@@ -25,7 +25,7 @@ Program::Program()
   RegisterClassEx(&wcex);
 
   hwnd_host_ =
-      CreateWindowEx(WS_EX_LAYERED | WS_EX_TRANSPARENT, L"TypeFocus", L"",
+      CreateWindowEx(WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW, L"TypeFocus", L"",
                      WS_CLIPCHILDREN | WS_POPUPWINDOW | WS_VISIBLE, 0, 0, 0, 0,
                      NULL, NULL, GetModuleHandle(NULL), NULL);
 
@@ -136,29 +136,37 @@ LRESULT Program::WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam,
 
 void Program::TimerProcedure(DWORD main_thread_id) {
   AttachThreadInput(main_thread_id, GetCurrentThreadId(), TRUE);
+  POINT caret_previous(0, 0);
+  POINT distance(0, 0);
+  POINT center(0, 0);
   while (running_) {  // Loop restarts every 16ms
     auto target_time =
-        std::chrono::steady_clock::now() + std::chrono::milliseconds(16);
+        std::chrono::steady_clock::now() + std::chrono::milliseconds(8);
     if (visible_caret_ && !hidden_) {
+      // Ensure position values don't change
+      distance.x = caret_position_.x - caret_previous.x;
+      distance.y = caret_position_.y - caret_previous.y;
+      center.x = caret_previous.x + (distance.x / 3);
+      center.y = caret_previous.y + (distance.y / 3);
+
       // Center source rectangle around caret proportional to zoom factor
       RECT source_rect;
-      source_rect.left =
-          caret_position_.x - (int)((lens_width_ / 2) / current_zoom_);
-      source_rect.top =
-          caret_position_.y - (int)((lens_height_ / 2) / current_zoom_);
+      source_rect.left = center.x - (int)((lens_width_ / 2) / current_zoom_);
+      source_rect.top = center.y - (int)((lens_height_ / 2) / current_zoom_);
       source_rect.right = source_rect.left + (lens_width_ / current_zoom_);
       source_rect.bottom = source_rect.top + (lens_height_ / current_zoom_);
 
       MagSetWindowSource(hwnd_lens_, source_rect);
 
       // Center host window around caret
-      SetWindowPos(hwnd_host_, HWND_TOPMOST,
-                   caret_position_.x - (lens_width_ / 2),
-                   caret_position_.y - (lens_height_ / 2), lens_width_,
-                   lens_height_, SWP_NOACTIVATE);
+      SetWindowPos(hwnd_host_, HWND_TOPMOST, center.x - (lens_width_ / 2),
+                   center.y - (lens_height_ / 2), lens_width_, lens_height_,
+                   SWP_NOACTIVATE);
 
       // Redraw magnification controller
       InvalidateRect(hwnd_lens_, NULL, TRUE);
+      caret_previous.x = center.x;
+      caret_previous.y = center.y;
     }
     std::this_thread::sleep_until(target_time);
   }
