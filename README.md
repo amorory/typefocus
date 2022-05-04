@@ -1,5 +1,8 @@
 # TypeFocus
+
 ## A tool to bring more equity to typing
+TypeFocus is an accessible typing software for windows that magnifies the area around the caret.
+It works system wide save for system programs.
 
 ### Hotkeys
 - Shift + Alt + M
