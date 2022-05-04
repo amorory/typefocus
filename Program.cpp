@@ -5,7 +5,7 @@
 std::function<void(HWND, DWORD, LONG, LONG)> Program::HookBinder;
 
 Program::Program(StateInfo settings)
-    : hidden_(true), running_(true), current_zoom_(1.5) {
+    : disabled_(false), hidden_(true), running_(true), current_zoom_(1.5) {
   HookBinder = std::bind(&Program::HookProcedure, this, std::placeholders::_1,
                          std::placeholders::_2, std::placeholders::_3,
                          std::placeholders::_4);
@@ -93,6 +93,7 @@ LRESULT Program::WindowProcedure(UINT uMsg, WPARAM wParam, LPARAM lParam) {
     case WM_HOTKEY:
       switch (wParam) {
         case 0:  // shift + alt + m
+          disabled_ = !disabled_;
           ToggleVisible();
           break;
         case 1:  // shift + alt + l
@@ -170,7 +171,7 @@ void Program::TimerCallback(HWND hwnd) {
 }
 
 void Program::HookProcedure(HWND hwnd, DWORD event, LONG object, LONG child) {
-  if (object == OBJID_CARET) {
+  if (!disabled_ && object == OBJID_CARET) {
     // Turn magnification on/off based on caret visibility
     if (event == EVENT_OBJECT_CREATE || event == EVENT_OBJECT_SHOW) {
       ToggleVisible(true);

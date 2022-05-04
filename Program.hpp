@@ -40,6 +40,7 @@ class Program {
   bool visible_caret_;
   bool invert_colors_;
   bool hidden_;
+  bool disabled_;
 
   void SetCaretPosition(long x, long y);
   void SetZoom(double zoom_factor_);
