@@ -24,14 +24,14 @@ Program::Program()
 
   RegisterClassEx(&wcex);
 
-  hwnd_host_ =
-      CreateWindowEx(WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW, L"TypeFocus", L"",
-                     WS_CLIPCHILDREN | WS_POPUPWINDOW | WS_VISIBLE, 0, 0, 0, 0,
-                     NULL, NULL, GetModuleHandle(NULL), NULL);
+  hwnd_host_ = CreateWindowEx(
+      WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW, L"TypeFocus", L"",
+      WS_CLIPCHILDREN | WS_POPUPWINDOW | WS_VISIBLE, 0, 0, 0, 0, NULL, NULL,
+      GetModuleHandle(NULL), NULL);
 
   // Store this within window
   SetWindowLongPtr(hwnd_host_, GWLP_USERDATA, (LONG_PTR)this);
-  SetLayeredWindowAttributes(hwnd_host_, 0, 255, LWA_ALPHA);
+  SetLayeredWindowAttributes(hwnd_host_, 0, 0, LWA_ALPHA);
 }
 
 void Program::CreateControl() {
@@ -41,6 +41,7 @@ void Program::CreateControl() {
                             WS_CHILD | WS_VISIBLE | MS_SHOWMAGNIFIEDCURSOR, 0,
                             0, lens_width_, lens_height_, hwnd_host_, nullptr,
                             GetModuleHandle(nullptr), nullptr);
+  caret_position_ = POINT(0, 0);
   zoom_async_ = std::async(&Program::SetZoom, this, current_zoom_);
   ToggleVisible();
   TimerCallback(hwnd_host_);
